@@ -1,40 +1,38 @@
+
 'use strict';
-require('jest');
-const { expect } = require('@jest/globals');
-const{pickupHandler,transitHandler,deliveredHandler}=require('../caps.js');
-
-
-let orderTest={
-  store: 'SWEETS',
-  orderID: '1ecdf758-a254-4e12-99bb-5b4e5afb3ab6',
-  customer: 'Tricia Schinner',
-  address: 'Simi Valley,side'
-}
-describe('caps', () => {
-    let consoleSpy;
-   
-
-    beforeAll(() => {
-      consoleSpy=jest.spyOn(console,'log').mockImplementation();
-    });
-    
-    afterAll(() => {
-        consoleSpy.mockRestore();
-    });
-    
-    
-    it('should Test pickedHandler', async () => {
-      await pickupHandler(orderTest);
-       expect(consoleSpy).toHaveBeenCalled();
-    });
-    it('should Test transitHandler',async () => {
-      await transitHandler(orderTest);
-         expect(consoleSpy).toHaveBeenCalled();
-    });
-    it('should Test deliveredHandler', async() => {
-      await deliveredHandler(orderTest);
-        expect(consoleSpy).toHaveBeenCalled();
-    });
-    
-
+const events =require('../events.js');
+describe('testing event handlers', ()=> {
+  let consoleSpy;
+  let orderTest={
+      store: 'SWEETS',
+      orderID: '1ecdf758-a254-4e12-99bb-5b4e5afb3ab6',
+      customer: 'Tricia Schinner',
+      address: 'Simi Valley,side'
+    }
+  beforeEach(()=> {
+    consoleSpy = jest.spyOn(console, 'log').mockImplementation();
   });
+    
+  afterEach(()=> {
+    consoleSpy.mockRestore();
+  });
+
+  it('should Test pickedHandler', async ()=> {
+    events.emit('pickup',orderTest);
+    await consoleSpy();
+    expect(consoleSpy).toHaveBeenCalled();
+  });
+
+  it('should Test transitHandler', async ()=> {
+    events.emit('in-transit',orderTest);
+    await consoleSpy();
+    expect(consoleSpy).toHaveBeenCalled();
+  });
+
+  it('should Test deliveredHandler', async ()=> {
+    events.emit('delivered',orderTest);
+    await consoleSpy();
+    expect(consoleSpy).toHaveBeenCalled();
+  });
+    
+});
